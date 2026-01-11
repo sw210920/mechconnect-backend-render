@@ -39,6 +39,7 @@ import com.mechconnect.backend.entity.enums.ServiceType;
 import com.mechconnect.backend.repository.MechanicRepository;
 import com.mechconnect.backend.repository.OrderRepository;
 import com.mechconnect.backend.repository.ServiceRequestRepository;
+import com.mechconnect.backend.service.EmailService;
 import com.mechconnect.backend.service.MechanicService;
 
 import jakarta.transaction.Transactional;
@@ -57,6 +58,11 @@ public class MechanicServiceImpl implements MechanicService {
 	
 	@Autowired
 	OrderRepository orderRepository;
+	
+	
+	@Autowired
+	private EmailService emailService;
+
 	
 	static Long orderNumber1=1L;
 	
@@ -233,6 +239,7 @@ public class MechanicServiceImpl implements MechanicService {
 
 	    mechanicRepository.save(mechanic);
 
+	    emailService.sendOtpEmail(mechanic.getEmail(), otp);
 	    return ResponseEntity.ok("OTP sent successfully");
 	}
 

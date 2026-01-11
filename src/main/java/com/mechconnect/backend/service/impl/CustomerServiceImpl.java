@@ -33,6 +33,7 @@ import com.mechconnect.backend.repository.MechanicRepository;
 import com.mechconnect.backend.repository.OrderRepository;
 import com.mechconnect.backend.repository.ServiceRequestRepository;
 import com.mechconnect.backend.service.CustomerService;
+import com.mechconnect.backend.service.EmailService;
 
 @Service
 public class CustomerServiceImpl implements CustomerService {
@@ -53,6 +54,11 @@ public class CustomerServiceImpl implements CustomerService {
 	  @Autowired
 	    private ServiceRequestRepository serviceRequestRepository;
 	
+	  
+	  @Autowired
+	  private EmailService emailService;
+
+	  
 	static Long orderNumber=1L;
 
 	
@@ -183,6 +189,8 @@ public class CustomerServiceImpl implements CustomerService {
 		        customer.setOtpExpiry(LocalDateTime.now().plusMinutes(5));
 
 		        customerRepository.save(customer);
+		        
+		        emailService.sendOtpEmail(customer.getEmail(), otp);
 		        return true;
 		    }
 

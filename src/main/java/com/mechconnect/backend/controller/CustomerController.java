@@ -184,7 +184,7 @@ public class CustomerController {
 
 
        // 1️⃣ FIND USER & SEND OTP
-       @PostMapping("/find-user")
+       @PostMapping("/customers/forgot-password/find-user")
        public ResponseEntity<?> forgotPassword(@RequestBody Map<String, String> request) {
 
            String email = request.get("email");
@@ -203,7 +203,7 @@ public class CustomerController {
        }
 
        // 2️⃣ VERIFY OTP
-       @PostMapping("/verify-otp")
+       @PostMapping("/customers/forgot-password/verify-otp")
        public ResponseEntity<?> verifyOtp(@RequestBody Map<String, String> request) {
 
            String email = request.get("email");
@@ -224,7 +224,7 @@ public class CustomerController {
        }
 
        // 3️⃣ RESET PASSWORD
-       @PostMapping("/reset-password")
+       @PostMapping("/customers/forgot-password/reset-password")
        public ResponseEntity<?> resetPassword(@RequestBody Map<String, String> request) {
 
            String email = request.get("email");
