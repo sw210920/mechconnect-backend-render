@@ -1,6 +1,7 @@
 package com.mechconnect.backend.service.impl;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 
 /**
  * MechanicServiceImpl
@@ -22,18 +23,23 @@ import org.springframework.stereotype.Service;
 
 import com.mechconnect.backend.dto.LoginRequestDto;
 import com.mechconnect.backend.dto.MechanicLoginResponseDto;
+import com.mechconnect.backend.dto.MechanicOrderDto;
 import com.mechconnect.backend.dto.MechanicProfileResponseDto;
 import com.mechconnect.backend.dto.MechanicProfileUpdateRequestDto;
 import com.mechconnect.backend.dto.MechanicRegistrationRequest;
 import com.mechconnect.backend.dto.NearbyMechanicCardResponseDto;
+import com.mechconnect.backend.entity.Customer;
 import com.mechconnect.backend.entity.Mechanic;
 import com.mechconnect.backend.entity.Orders;
 import com.mechconnect.backend.entity.ServiceRequest;
 import com.mechconnect.backend.entity.enums.OrderStatus;
+import com.mechconnect.backend.entity.enums.RequestStatus;
+import com.mechconnect.backend.entity.enums.ServiceMode;
 import com.mechconnect.backend.entity.enums.ServiceType;
 import com.mechconnect.backend.repository.MechanicRepository;
 import com.mechconnect.backend.repository.OrderRepository;
 import com.mechconnect.backend.repository.ServiceRequestRepository;
+import com.mechconnect.backend.service.EmailService;
 import com.mechconnect.backend.service.MechanicService;
 
 import jakarta.transaction.Transactional;
@@ -52,6 +58,11 @@ public class MechanicServiceImpl implements MechanicService {
 	
 	@Autowired
 	OrderRepository orderRepository;
+	
+	
+	@Autowired
+	private EmailService emailService;
+
 	
 	static Long orderNumber1=1L;
 	
@@ -85,6 +96,7 @@ public class MechanicServiceImpl implements MechanicService {
 			            passwordEncoder.encode(registerMechanic.getpassword()) );
 			 mechanic.setMobailNumber(registerMechanic.getMobailNumber());
 			 mechanic.setServiceLocation(registerMechanic.getServiceLocation());
+			 mechanic.setAddress(registerMechanic.getAddress());
 			 mechanic.setYearsOfExperience(registerMechanic.getYearsOfExperience());
 			 mechanic.setSpecialization(specialization);
 			
@@ -144,9 +156,9 @@ public class MechanicServiceImpl implements MechanicService {
 	    res.setLastName(mechanic.getLastName());
 	    res.setEmail(mechanic.getEmail());
 	    res.setMobailNumber(mechanic.getMobailNumber());
-
+	    res.setAddress(mechanic.getAddress());
 	    res.setSpecialization(mechanic.getSpecialization());
-	    res.setServiceLocation(mechanic.getServiceLocation());
+	    res.setServiceLocation(mechanic.getServiceLocation());	
 	    res.setYearsOfExperience(mechanic.getYearsOfExperience());
 
 	    res.setCertifications(mechanic.getCertifications());
@@ -168,6 +180,8 @@ public class MechanicServiceImpl implements MechanicService {
 		    mechanic.setMobailNumber(req.getMobailNumber());
 		   
 		    mechanic.setServiceLocation(req.getServiceLocation());
+		    mechanic.setAddress(req.getAddress());
+		    
 		    mechanic.setYearsOfExperience(req.getYearsOfExperience());
 		    mechanic.setCertifications(req.getCertifications());
 		    mechanic.setBio(req.getBio());
@@ -225,6 +239,7 @@ public class MechanicServiceImpl implements MechanicService {
 
 	    mechanicRepository.save(mechanic);
 
+	    emailService.sendOtpEmail(mechanic.getEmail(), otp);
 	    return ResponseEntity.ok("OTP sent successfully");
 	}
 
@@ -432,7 +447,91 @@ public class MechanicServiceImpl implements MechanicService {
 	  }
 	  
 	  
-}
+	  
+// to fetch orders on mechanic profile
+	  @Override
+	    public List<MechanicOrderDto> getOrdersForMechanic(Long mechanicId) {
+
+	        List<RequestStatus> allowedStatuses =
+	                List.of(RequestStatus.ACCEPTED, RequestStatus.COMPLETED);
+
+	        List<Orders> orders =
+	                orderRepository.findByMechanic_MechanicIdAndStatusInOrderByCreatedAtDesc(
+	                        mechanicId,
+	                        allowedStatuses
+	                );
+
+	        List<MechanicOrderDto> result = new ArrayList<>();
+
+	        for (Orders order : orders) {
+
+	            MechanicOrderDto dto = new MechanicOrderDto();
+
+	            dto.setOrderId(order.getOrderId());
+	            dto.setOrderNumber(order.getOrderNumber());
+	            dto.setStatus(order.getStatus().name());
+
+	            // Customer info
+	            Customer customer = order.getCustomer();
+	            dto.setCustomerId(customer.getCustomerId());
+	            dto.setCustomerName(
+	                    customer.getFirstName() + " " + customer.getLastName()
+	            );
+
+	            // Order details
+	            dto.setServiceType(order.getServiceType());
+	            dto.setPackageName(order.getPackageName());
+	            dto.setServiceMode(order.getServiceMode());
+//	            dto.setVehicle(order.getVehicleMake());
+//	            dto.setVehicleModel(order.getVehicleModel());
+	            dto.setServiceDate(order.getServiceDate());
+	            dto.setServiceTime(order.getServiceTime());
+
+	            dto.setVehicle(
+	                    order.getVehicleMake() + " " + order.getVehicleModel()
+	            );
+	            dto.setRegistrationNumber(order.getVehicleRegistrationNumber());
+
+	            // ✅ BUSINESS RULE
+	            if (order.getServiceMode() == ServiceMode.DOORSTEP) {
+	                dto.setCustomerAddress(order.getCustomerAddress());
+	            }
+
+
+	            result.add(dto);
+	        }
+
+	        return result;
+	    }
+
+	    // ==============================
+	    // MARK ORDER AS COMPLETED
+	    // ==============================
+	    @Override
+	    public boolean markOrderCompleted(Long orderId, Long mechanicId) {
+
+	        Orders order = orderRepository.findById(orderId)
+	                .orElseThrow(() -> new RuntimeException("Order not found"));
+
+	        // ✅ Security check
+	        if (!order.getMechanic().getMechanicId().equals(mechanicId)) {
+	            throw new RuntimeException("Unauthorized");
+	        }
+
+	        // ✅ Only ACCEPTED → COMPLETED
+	        if (order.getStatus() != OrderStatus.ACCEPTED) {
+	            return false;
+	        }
+
+	        order.setStatus(OrderStatus.COMPLETED);
+	        orderRepository.save(order);
+
+
+	        return true;
+	    }
+	}
+
+	 
 
 
 

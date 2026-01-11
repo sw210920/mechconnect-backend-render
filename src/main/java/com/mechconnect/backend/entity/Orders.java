@@ -1,28 +1,16 @@
 package com.mechconnect.backend.entity;
 
+import java.time.LocalDateTime;
+
+import com.mechconnect.backend.entity.enums.OrderStatus;
+import com.mechconnect.backend.entity.enums.ServiceMode;
+
 /**
  * Orders
  *
  * Part of the MechConnect backend application.
  * Responsible for handling entity related logic.
  */
-
-
-
-
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-
-import java.time.LocalDateTime;
-
-import com.mechconnect.backend.entity.enums.OrderStatus;
-
 import jakarta.persistence.*;
 
 @Entity
@@ -53,9 +41,12 @@ public class Orders {
     @Column(nullable = false)
     private String serviceType;
     
+    @Enumerated(EnumType.STRING)
+    private ServiceMode serviceMode;    
     
-
-    private String packageName;
+    private String customerAddress;
+   
+	private String packageName;
 
     private  String ServiceDate;
 
@@ -112,6 +103,30 @@ public class Orders {
         this.vehicleModel = vehicleModel;
     }
 
+    
+    
+    
+    public String getCustomerAddress() {
+		return customerAddress;
+	}
+
+
+	public void setCustomerAddress(String customerAddress) {
+		this.customerAddress = customerAddress;
+	}
+
+
+	public ServiceMode getServiceMode() {
+		return serviceMode;
+	}
+
+
+	public void setServiceMode(ServiceMode serviceMode) {
+		this.serviceMode = serviceMode;
+	}
+
+
+    
     public String getVehicleYear() {
         return vehicleyear;
     }

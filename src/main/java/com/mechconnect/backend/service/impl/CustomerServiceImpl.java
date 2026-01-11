@@ -22,13 +22,18 @@ import com.mechconnect.backend.dto.CustomerOrderDto;
 import com.mechconnect.backend.dto.CustomerRegistrationRequest;
 import com.mechconnect.backend.dto.LoginRequestDto;
 import com.mechconnect.backend.entity.Customer;
+import com.mechconnect.backend.entity.Mechanic;
 import com.mechconnect.backend.entity.Orders;
 import com.mechconnect.backend.entity.ServiceRequest;
+import com.mechconnect.backend.entity.enums.OrderStatus;
 import com.mechconnect.backend.entity.enums.RequestStatus;
+import com.mechconnect.backend.entity.enums.ServiceMode;
 import com.mechconnect.backend.repository.CustomerRepository;
+import com.mechconnect.backend.repository.MechanicRepository;
 import com.mechconnect.backend.repository.OrderRepository;
 import com.mechconnect.backend.repository.ServiceRequestRepository;
 import com.mechconnect.backend.service.CustomerService;
+import com.mechconnect.backend.service.EmailService;
 
 @Service
 public class CustomerServiceImpl implements CustomerService {
@@ -42,10 +47,18 @@ public class CustomerServiceImpl implements CustomerService {
 	@Autowired
 	OrderRepository orderRepository;
 	
+	@Autowired
+	private MechanicRepository mechanicRepository;
+
 	
 	  @Autowired
 	    private ServiceRequestRepository serviceRequestRepository;
 	
+	  
+	  @Autowired
+	  private EmailService emailService;
+
+	  
 	static Long orderNumber=1L;
 
 	
@@ -176,6 +189,8 @@ public class CustomerServiceImpl implements CustomerService {
 		        customer.setOtpExpiry(LocalDateTime.now().plusMinutes(5));
 
 		        customerRepository.save(customer);
+		        
+		        emailService.sendOtpEmail(customer.getEmail(), otp);
 		        return true;
 		    }
 
@@ -248,34 +263,14 @@ public class CustomerServiceImpl implements CustomerService {
 		}
 
 	
-//	Fetch Orders At Customer Log In
-//
-//			 @Override
-//			    public List<CustomerOrderDto> getOrdersForCustomer(Long customerId) {
-//
-//			        List<Orders> orders =
-//			                orderRepository.findByCustomer_CustomerIdOrderByCreatedAtDesc(customerId);
-//
-//			        return orders.stream()
-//			                .map(OrderMapper::toCustomerOrderDto)
-//			                .toList();
-//			    }
-//
-//
-//			 @Override
-//			 public List<ServiceRequest> findByCustomer_CustomerIdAndStatus(Long customerId, RequestStatus status) {
-//				// TODO Auto-generated method stub
-//				return null;
-//			 }
-//
-//	
+//	Fetch Orders At Customer Log In	
 			@Override
 			public List<CustomerOrderDto> getOrdersForCustomer(Long customerId) {
 
 			    List<CustomerOrderDto> result = new ArrayList<>();
 
 			    /* =============================
-			       1️⃣ Pending (ServiceRequest)
+			       1️⃣ Pending Requests
 			    ============================== */
 			    List<ServiceRequest> pendingRequests =
 			        serviceRequestRepository
@@ -285,37 +280,70 @@ public class CustomerServiceImpl implements CustomerService {
 			            );
 
 			    for (ServiceRequest req : pendingRequests) {
-			        CustomerOrderDto dto = new CustomerOrderDto();
 
+			        CustomerOrderDto dto = new CustomerOrderDto();
+			        
 			        dto.setOrderNumber("REQ-" + req.getRequestId());
 			        dto.setServiceType(req.getServiceType());
 			        dto.setPackageName(req.getPackageName());
+			        dto.setServiceMode(req.getServiceMode());
 			        dto.setServiceDate(req.getServiceDate());
 			        dto.setServiceTime(req.getTime());
 			        dto.setVehicleMake(req.getMake());
 			        dto.setVehicleModel(req.getModel());
-			        dto.setStatus("PENDING"); // STRING
+			        dto.setVehicleRegistrationNumber(req.getRegistrationNumber());
+			        dto.setStatus("PENDING");
+			        // ✅ Requested mechanic (NOT assigned yet)
+			        Mechanic requested = req.getRequestedMechanic();
+			        if (requested != null) {
+			            dto.setMechanicId(requested.getMechanicId());
+			            dto.setMechanicName(
+			                requested.getFirstName() + " " + requested.getLastName()
+			            );
+			        } else {
+			            dto.setMechanicName("Waiting for mechanic");
+			        }
 
 			        result.add(dto);
 			    }
-
 			    /* =============================
-			       2️⃣ Orders table
+			       2️⃣ Orders (Accepted / Rejected / Completed)
 			    ============================== */
 			    List<Orders> orders =
-			        orderRepository.findByCustomer_CustomerIdOrderByCreatedAtDesc(customerId);
+			        orderRepository.findOrdersWithMechanic(customerId);
 
 			    for (Orders order : orders) {
+
 			        CustomerOrderDto dto = new CustomerOrderDto();
 
 			        dto.setOrderNumber(order.getOrderNumber());
 			        dto.setServiceType(order.getServiceType());
 			        dto.setPackageName(order.getPackageName());
+			        dto.setServiceMode(order.getServiceMode());
 			        dto.setServiceDate(order.getServiceDate());
+			        dto.setVehicleRegistrationNumber(order.getVehicleRegistrationNumber());
 			        dto.setServiceTime(order.getServiceTime());
 			        dto.setVehicleMake(order.getVehicleMake());
 			        dto.setVehicleModel(order.getVehicleModel());
-			        dto.setStatus(order.getStatus().name()); // ENUM → STRING
+			        dto.setStatus(order.getStatus().name());
+
+			        Mechanic mechanic = order.getMechanic();
+
+			        if (mechanic != null) {
+			            dto.setMechanicId(mechanic.getMechanicId());
+			            dto.setMechanicName(
+			                mechanic.getFirstName() + " " + mechanic.getLastName()
+			            );
+
+			            // ✅ BUSINESS RULE: show address only for GARAGE + Accepted/Completed
+			            if (
+			            	    order.getServiceMode() == ServiceMode.GARAGE &&
+			            	    (order.getStatus() == OrderStatus.ACCEPTED
+			            	     || order.getStatus() == OrderStatus.COMPLETED)
+			            	) {
+			            	    dto.setMechanicAddress(mechanic.getAddress());
+			            	}
+			        }
 
 			        result.add(dto);
 			    }

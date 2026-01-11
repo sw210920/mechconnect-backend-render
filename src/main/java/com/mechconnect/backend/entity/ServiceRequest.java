@@ -34,8 +34,12 @@ public class ServiceRequest {
     @JoinColumn(name = "mechanic_id", nullable = false)
     private Mechanic mechanic;
     
-    
-    @Column(name = "vehicle_year", nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "requested_mechanic_id")
+    private Mechanic requestedMechanic;
+
+  
+	@Column(name = "vehicle_year", nullable = false)
     private String vehicleYear;
    
     @Enumerated(EnumType.STRING)
@@ -72,7 +76,23 @@ public class ServiceRequest {
     private LocalDateTime createdAt;
 
     
+    @PrePersist
+    protected void onCreate() {
+        this.createdAt = LocalDateTime.now();
+    }
+    
 //    GETTER SETTER
+    
+    
+    
+    public Mechanic getRequestedMechanic() {
+		return requestedMechanic;
+	}
+
+	public void setRequestedMechanic(Mechanic requestedMechanic) {
+		this.requestedMechanic = requestedMechanic;
+	}
+
     
     
     public ServiceMode getServiceMode() {

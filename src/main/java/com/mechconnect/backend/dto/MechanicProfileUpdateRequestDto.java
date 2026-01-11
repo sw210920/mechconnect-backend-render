@@ -16,8 +16,8 @@ public class MechanicProfileUpdateRequestDto {
 	    private String lastName;
 	    private String mobailNumber;
 	    
-	   
-	    private String specialization;
+	    private String address;
+	  		private String specialization;
 	    
 	    private String serviceLocation;
 	    private String yearsOfExperience;
@@ -64,6 +64,15 @@ public class MechanicProfileUpdateRequestDto {
 		public void setServiceLocation(String serviceLocation) {
 			this.serviceLocation = serviceLocation;
 		}
+		
+		  public String getAddress() {
+				return address;
+			}
+			public void setAddress(String address) {
+				this.address = address;
+			}
+
+		
 		public String getYearsOfExperience() {
 			return yearsOfExperience;
 		}

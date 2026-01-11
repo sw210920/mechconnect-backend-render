@@ -1,6 +1,6 @@
 package com.mechconnect.backend.dto;
 
-
+import com.mechconnect.backend.entity.enums.ServiceMode;
 
 public class CustomerOrderDto {
 
@@ -9,12 +9,46 @@ public class CustomerOrderDto {
     private String packageName;
     private String serviceDate;
     private String serviceTime;
+    
+    private ServiceMode serviceMode;    
+//  private OrderStatus status;
+    private String mechanicAddress;
+    private String vehicleRegistrationNumber;
+    
 
+	private Long mechanicId;
+    private String mechanicName;
+    
     private String vehicleMake;
     private String vehicleModel;
-
-//    private OrderStatus status;
     private String status;
+
+	public Long getMechanicId() {
+		return mechanicId;
+	}
+
+	public void setMechanicId(Long mechanicId) {
+		this.mechanicId = mechanicId;
+	}
+
+	public String getMechanicName() {
+		return mechanicName;
+	}
+
+	public void setMechanicName(String mechanicName) {
+		this.mechanicName = mechanicName;
+	}
+
+	
+	public String getMechanicAddress() {
+		return mechanicAddress;
+	}
+
+	public void setMechanicAddress(String mechanicAddress) {
+		this.mechanicAddress = mechanicAddress;
+	}
+
+   
 
 	public String getOrderNumber() {
 		return orderNumber;
@@ -79,6 +113,23 @@ public class CustomerOrderDto {
 	public void setStatus(String status) {
 		this.status = status;
 	}
+
+	public ServiceMode getServiceMode() {
+		return serviceMode;
+	}
+
+	public void setServiceMode(ServiceMode serviceMode) {
+		this.serviceMode = serviceMode;
+	}
+	
+	public String getVehicleRegistrationNumber() {
+		return vehicleRegistrationNumber;
+	}
+
+	public void setVehicleRegistrationNumber(String vehicleRegistrationNumber) {
+		this.vehicleRegistrationNumber = vehicleRegistrationNumber;
+	}
+
 
 //	public OrderStatus getStatus() {
 //		return status;

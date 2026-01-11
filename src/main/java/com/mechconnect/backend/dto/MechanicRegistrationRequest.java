@@ -28,6 +28,10 @@ public String firstName;
 	
 	public String  ServiceLocation;
 	
+	private String address;
+	
+	
+
 	public  String Certifications;
 	
 	public 	String Bio;
@@ -93,6 +97,14 @@ public String firstName;
 
 	public void setServiceLocation(String serviceLocation) {
 		ServiceLocation = serviceLocation;
+	}
+	
+	public String getAddress() {
+		return address;
+	}
+
+	public void setAddress(String address) {
+		this.address = address;
 	}
 
 	public String getCertifications() {

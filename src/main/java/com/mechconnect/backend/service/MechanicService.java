@@ -15,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 
 
 import com.mechconnect.backend.dto.LoginRequestDto;
+import com.mechconnect.backend.dto.MechanicOrderDto;
 import com.mechconnect.backend.dto.MechanicProfileUpdateRequestDto;
 import com.mechconnect.backend.dto.MechanicRegistrationRequest;
 import com.mechconnect.backend.dto.NearbyMechanicCardResponseDto;
@@ -54,7 +55,9 @@ public interface MechanicService {
 
 	
 
-	
+	  List<MechanicOrderDto> getOrdersForMechanic(Long mechanicId);
+
+	    boolean markOrderCompleted(Long orderId, Long mechanicId);
    
 
 	

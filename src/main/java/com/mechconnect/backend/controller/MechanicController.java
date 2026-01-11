@@ -1,5 +1,7 @@
 package com.mechconnect.backend.controller;
 
+import java.util.List;
+
 /**
  * MechanicController
  *
@@ -30,12 +32,12 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.mechconnect.backend.dto.LoginRequestDto;
-
-
+import com.mechconnect.backend.dto.MechanicOrderDto;
 import com.mechconnect.backend.dto.MechanicProfileUpdateRequestDto;
 import com.mechconnect.backend.dto.PasswordResetRequestDto;
 import com.mechconnect.backend.dto.MechanicRegistrationRequest;
 import com.mechconnect.backend.service.MechanicService;
+
 
 import jakarta.annotation.PostConstruct;
 
@@ -178,24 +180,38 @@ public class MechanicController {
        
        
           
-     
-     
-      
+// to fetch orders on mechanic log in
+       @GetMapping("/mechanic/orders")
+       public ResponseEntity<List<MechanicOrderDto>> getOrders(
+               @RequestParam Long mechanicId
+       ) {
+           return ResponseEntity.ok(
+                   mechanicService.getOrdersForMechanic(mechanicId)
+           );
+       }
 
+       // ✅ Mark order completed
+       @PostMapping("/orders/{orderId}/complete")
+       public ResponseEntity<?> completeOrder(
+               @PathVariable Long orderId,
+               @RequestParam Long mechanicId
+       ) {
+           boolean success =
+                   mechanicService.markOrderCompleted(orderId, mechanicId);
 
-      
+           if (!success) {
+               return ResponseEntity.badRequest()
+                       .body("Order cannot be completed");
+           }
+
+           return ResponseEntity.ok("Order marked as completed");
+       }
        
-      
-
-    
-    
-       
-
        
        
-
        
    }
+     
 
 
        

@@ -50,7 +50,7 @@ public class ServiceRequestServiceImpl implements ServiceRequestService {
 
 
 
-	    // CUSTOMER SEND REQUEST
+	    // CUSTOMER SEND Service Request
 	    @Override
 	    public String sendRequest(ServiceRequestCreateDto dto) {
 
@@ -95,6 +95,16 @@ public class ServiceRequestServiceImpl implements ServiceRequestService {
 
 	        request.setstatus(RequestStatus.PENDING);
 
+	        
+	        if (dto.getMechanicId() != null) {
+	            Mechanic mechanic1 = mechanicRepo
+	                .findById(dto.getMechanicId())
+	                .orElseThrow(() -> new RuntimeException("Mechanic not found"));
+
+	            request.setRequestedMechanic(mechanic1);
+	        }
+
+	        
 	        serviceRequestRepository.save(request);
 
 	        return "REQUEST_SENT";
@@ -185,7 +195,8 @@ public class ServiceRequestServiceImpl implements ServiceRequestService {
 			    order.setServiceDate(req.getServiceDate());
 			    order.setServiceTime(req.getTime());
 			    order.setPackageName(req.getPackageName());
-
+			    order.setServiceMode(req.getServiceMode());
+			    order.setCustomerAddress(req.getServiceAddress());
 			    order.setCustomer(req.getCustomer());
 			    order.setMechanic(req.getMechanic());
 
@@ -222,7 +233,8 @@ public class ServiceRequestServiceImpl implements ServiceRequestService {
 		     order.setServiceDate(req.getServiceDate());
 		     order.setServiceTime(req.getTime());
 		     order.setPackageName(req.getPackageName());
-
+		     order.setServiceMode(req.getServiceMode());
+		     
 		     order.setCustomer(req.getCustomer());
 		     order.setMechanic(req.getMechanic());
 

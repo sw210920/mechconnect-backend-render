@@ -53,6 +53,20 @@ public class Mechanic {
 	@Column(name="ServiceLocation")
 	private String serviceLocation;
 	
+	@Column(nullable = false)
+	private String address;
+
+	
+	public String getAddress() {
+		return address;
+	}
+
+
+	public void setAddress(String address) {
+		this.address = address;
+	}
+
+
 	@Column(name="Specialization")
 	@Enumerated(EnumType.STRING)
     private ServiceType specialization;

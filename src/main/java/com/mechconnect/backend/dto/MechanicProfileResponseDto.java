@@ -26,7 +26,9 @@ public class MechanicProfileResponseDto {
     
     
     private String serviceLocation;
-    private String yearsOfExperience;
+    private String address;
+   
+	private String yearsOfExperience;
 
     private String certifications;
     private String bio;
@@ -74,6 +76,12 @@ public class MechanicProfileResponseDto {
 		this.serviceLocation = serviceLocation;
 	}
 	
+	 public String getAddress() {
+			return address;
+		}
+		public void setAddress(String address) {
+			this.address = address;
+		}	
 	
 	public String getYearsOfExperience() {
 		return yearsOfExperience;

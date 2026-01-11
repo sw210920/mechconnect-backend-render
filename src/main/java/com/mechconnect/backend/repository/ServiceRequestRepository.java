@@ -26,11 +26,6 @@ public interface ServiceRequestRepository extends JpaRepository<ServiceRequest, 
     
     List<ServiceRequest> findByMechanic_MechanicIdAndStatus(Long mechanicId, RequestStatus status);
 
-	static void save(Orders order) {
-		// TODO Auto-generated method stub
-		
-	}
-
 	
 	List<ServiceRequest> 
 	findByCustomer_CustomerIdAndStatusOrderByCreatedAtDesc(
