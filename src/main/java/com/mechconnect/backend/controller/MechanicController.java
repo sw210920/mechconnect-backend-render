@@ -1,4 +1,5 @@
-package com.mechconnect.backend.controller;
+package com.projectpractice.controller;
+
 
 import java.util.List;
 
