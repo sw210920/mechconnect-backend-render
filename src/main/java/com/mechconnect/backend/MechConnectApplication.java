@@ -1,21 +1,13 @@
-package com.mechconnect.backend;
-
-/**
- * MechConnectApplication
- *
- * Part of the MechConnect backend application.
- * Responsible for handling backend related logic.
- */
-
+package com.projectpractice.mechconnectbackend;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class MechConnectApplication {
+public class MechconnectBackendApplication {
 
-	public static void main(String[] args) {
-		SpringApplication.run(MechConnectApplication.class, args);
-	}
+    public static void main(String[] args) {
+        SpringApplication.run(MechconnectBackendApplication.class, args);
 
+    }
 }
