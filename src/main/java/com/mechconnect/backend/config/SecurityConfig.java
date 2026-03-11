@@ -32,8 +32,9 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .cors(cors -> {}) // ✅ ENABLE CORS
                 .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/ping").permitAll(),
+                
                     .requestMatchers("/api/**",
+                                     "/ping",
                     		"/api/sendRequest",
                     		 "/api/mechanic/update",
                             "/api/customers/**",
