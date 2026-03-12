@@ -20,7 +20,8 @@ public class WebConfig {
                         .allowedOrigins(
                                 "http://127.0.0.1:5500",   // local frontend
                                 "http://localhost:5500",
-                                "https://mechconnect-frontend-render-tzfy.onrender.com" // deployed frontend
+                                "https://mechconnect-frontend-render-tzfy.onrender.com", // deployed frontend
+                                "https://mechconnect-frontend-render.onrender.com"
                         )
                         .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                         .allowedHeaders("*")
